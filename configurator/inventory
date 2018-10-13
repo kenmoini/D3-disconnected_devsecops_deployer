@@ -1,0 +1,43 @@
+[GlusterHosts]
+192.168.42.61 set_hostname=gluster-1
+192.168.42.62 set_hostname=gluster-2
+192.168.42.63 set_hostname=gluster-3
+
+[GlusterHosts:vars]
+testVar=blah
+
+[OSE3MasterNodes]
+192.168.42.11 set_hostname=ose-m-1
+192.168.42.13 set_hostname=ose-m-2
+192.168.42.15 set_hostname=ose-m-3
+
+[OSE3InfrastructureNodes]
+192.168.42.21 set_hostname=ose-i-1
+192.168.42.23 set_hostname=ose-i-2
+192.168.42.25 set_hostname=ose-i-3
+
+[OSE3ApplicationNodes]
+192.168.42.31 set_hostname=ose-a-1
+192.168.42.33 set_hostname=ose-a-2
+192.168.42.35 set_hostname=ose-a-3
+
+[MeMyselfAndI]
+192.168.42.1 ansible_connection=local set_hostname=gaston
+
+[AllNodes:children]
+GlusterHosts
+OSE3MasterNodes
+OSE3InfrastructureNodes
+OSE3ApplicationNodes
+
+[AllOSENodes:children]
+OSE3MasterNodes
+OSE3ApplicationNodes
+OSE3InfrastructureNodes
+
+[AllHosts:children]
+MeMyselfAndI
+GlusterHosts
+OSE3MasterNodes
+OSE3InfrastructureNodes
+OSE3ApplicationNodes

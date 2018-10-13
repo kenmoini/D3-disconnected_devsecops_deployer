@@ -1,0 +1,7 @@
+server {{ gaston_fqdn }} iburst
+allow {{ network_cidr }}
+driftfile /var/lib/chrony/drift
+rtcsync
+local stratum 11
+logdir /var/log/chrony
+stratumweight 0

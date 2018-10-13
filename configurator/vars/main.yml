@@ -1,0 +1,6 @@
+
+gaston_hostname: gaston
+
+set_domain: kemo.lab
+
+gaston_fqdn: "{{ gaston_hostname }}.{{ set_domain }}"

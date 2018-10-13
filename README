@@ -1,0 +1,37 @@
+# Disconnected DevSecOps
+## With Fierce and Friends
+
+## By Ken Moini
+### Sponsored by Brawndo - It's what plants CRAVE!
+
+## Still a WIP
+
+
+# Step 1) Provision DMZ Host
+First, setup your DMZ host.  This is the machine with access to the internet so
+you can pull in the docker container images as well as the RPMs needed to install OCP.
+
+This can be done by running the dmz-provisioner.sh script, as root.
+Set the LOCAL_REPO_PATH variable in the script and run it, it'll take care of the rest
+as long as you have the needed RHEL, OCP, and Gluster subscriptions attached.
+NOTE: You need a root partition (/) to be at least 140GB in size.  I suggest creating
+      the DMZ host with one large root (/) parition without the separate home (/home)
+      partition.  Otherwise your disks might fill up.
+
+Once the DMZ Provisioner script is finished, copy the created repo files and a RHEL
+ISO to an external drive or media disc (or have an installer available some other way
+in the disconnected environment).
+
+# Step 2) Provision Inner Bastion Host - Gaston
+Create a RHEL machine to be the disconnected environment's bastion host, we'll call it
+'Gaston' because why not.  This will be installed with the Server with GUI package
+Make sure this machine has two NICs, the first disconnected and the second enabled.
+This machine needs at least 160gb in / partition.
+
+Once this Gaston RHEL 7.5 Server machine is set up, connect and mount the external hard drive or
+media disc that was used to bring over the repo files and container images (and this
+documentation and set of scripts).
+
+Next modify the prepare-gaston.sh file with the needed variables, and execute.
+This will prepare this host as the disconnected environment's Bastion host.  Not only that,
+but it will also provide DHCP, DNS, NTP services, in addition to acting as the RPM repo host.

@@ -1,0 +1,58 @@
+network_cidr: "192.168.42.0/24"
+
+
+gluster_node_packages:
+  - redhat-storage-server
+  - gstatus
+  - glusterfs-ganesha
+  - samba
+  - samba-client
+  - samba-common
+  - samba-libs
+  - samba-vfs-glusterfs
+  - ansible
+  - firewalld
+  - selinux-policy-targeted
+  - selinux-policy
+  - libselinux
+  - libselinux-python
+  - libselinux-utils
+  - policycoreutils
+  - policycoreutils-python
+  - setroubleshoot
+  - setroubleshoot-server
+  - setroubleshoot-plugins
+
+ose_master_node_packages:
+  - ansible
+
+ose_infrastructure_node_packages:
+  - ansible
+
+ose_application_node_packages:
+  - ansible
+
+gluster_node_tcp_ports:
+  - 22
+  - 80
+  - 111
+  - 139
+  - 443
+  - 445
+  - 965
+  - 2049
+  - 5666-5667
+  - 6010-6012
+  - 8080
+  - 24007
+  - 24007-24108
+  - 38465-38466
+  - 38468-36469
+  - 39543
+  - 49152-49251
+  - 54321
+  - 55863
+
+gluster_node_udp_ports:
+  - 111
+  - 963

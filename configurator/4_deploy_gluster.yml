@@ -1,0 +1,38 @@
+---
+- hosts: all
+  gather_facts: true
+  become: true
+  
+  tasks:
+    - name: "[GLUSTER] Install storage server software..."
+      yum:
+        name: "{{ item }}"
+        state: latest
+      with_items: "{{ gluster_node_packages }}"
+      when: inventory_hostname in groups['GlusterHosts']
+
+    - name: "[GLUSTER] Configure TCP ports with firewalld..."
+    - firewalld:
+        port: "{{ item }}/tcp"
+        permanent: true
+        state: enabled
+      with_items: "{{ gluster_node_tcp_ports }}"
+
+    - name: "[GLUSTER] Configure UDP ports with firewalld..."
+    - firewalld:
+        port: "{{ item }}/udp"
+        permanent: true
+        state: enabled
+      with_items: "{{ gluster_node_udp_ports }}"
+
+    - name: "[GLUSTER] Reboot gluster nodes..."
+      reboot:
+        reboot_timeout: 3600
+      when: inventory_hostname in groups['GlusterHosts']
+
+    - name: "[GLUSTER] Enabling and starting glusterd service..."
+      service:
+        name: glusterd
+        enabled: yes
+        state: started
+      when: inventory_hostname in groups['GlusterHosts']

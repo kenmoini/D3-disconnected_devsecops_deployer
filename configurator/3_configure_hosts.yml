@@ -1,0 +1,95 @@
+---
+- hosts: all
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: "[ALL] Set hostnames for nodes..."
+      hostname:
+        name: "{{ set_hostname }}.{{ set_domain }}"
+      when: inventory_hostname in groups['AllNodes']
+
+    - name: "[LOCAL] Backup local Gaston /etc/hosts file..."
+      copy:
+        src: /etc/hosts
+        dest: "/etc/hosts-{{ ansible_date_time.epoch }}.bak"
+        remote_src: yes
+      when: inventory_hostname in groups['MeMyselfAndI']
+
+    - name: "[LOCAL] Configure local Gaston /etc/hosts file..."
+      lineinfile:
+        dest: "/etc/hosts"
+        regexp: '.*{{ item }}$'
+        line: "{{ item }} {{ hostvars[item].set_hostname }}.{{ set_domain }} {{ hostvars[item].set_hostname }}"
+        state: present
+      when: inventory_hostname in groups['MeMyselfAndI']
+      with_items: groups['AllNodes']
+
+    - name: "[LOCAL] Create total cluster host file for distribution to nodes..."
+      lineinfile:
+        dest: "/etc/cluster-hosts"
+        regexp: '.*{{ item }}$'
+        line: "{{ item }} {{ hostvars[item].set_hostname }}.{{ set_domain }} {{ hostvars[item].set_hostname }}"
+        state: present
+      when: inventory_hostname in groups['MeMyselfAndI']
+      with_items: groups['AllNodes']
+
+    - name: "[ALL] Copy cluster /etc/hosts file to nodes..."
+      copy:
+        src: /etc/cluster-hosts
+        dest: "/etc/hosts"
+      when: inventory_hostname in groups['AllNodes']
+
+    - name: "[GLUSTER] Copy Repo file to Gluster nodes..."
+      template:
+        src: kemo-gluster.repo.j2
+        dest: /etc/yum.repos.d/kemo-gluster.repo
+      when: inventory_hostname in groups['GlusterHosts']
+
+    - name: "[OSE] Copy Repo file to OSE nodes..."
+      template:
+        src: kemo-ose.repo.j2
+        dest: /etc/yum.repos.d/kemo-ose.repo
+      when: inventory_hostname in groups['AllOSENodes']
+
+    - name: "[ALL] Update systems and packages on all nodes..."
+      yum:
+        name: "*"
+        state: latest
+      when: inventory_hostname in groups['AllNodes']
+
+    - name: "[ALL] Install Chronyd..."
+      yum:
+        name: "chronyd"
+        state: latest
+      when: inventory_hostname in groups['AllNodes']
+
+    - name: "[ALL] Enable and start Chrony..."
+      service:
+        name: chronyd
+        enabled: yes
+        state: started
+      when: inventory_hostname in groups['AllNodes']
+
+    - name: "[ALL] Backup /etc/chrony.conf..."
+      copy:
+        src: /etc/chrony.conf
+        dest: "/etc/chrony.conf-{{ ansible_date_time.epoch }}.bak"
+        remote_src: yes
+      when: inventory_hostname in groups['AllNodes']
+
+    - name: "[ALL] Set Chrony on nodes to connect to Gaston..."
+      template:
+        src: chrony.conf.j2
+        dest: /etc/chrony.conf
+      when: inventory_hostname in groups['AllNodes']
+
+    - name: "[ALL] Restart Chrony..."
+      service:
+        name: chronyd
+        state: restarted
+      when: inventory_hostname in groups['AllNodes']
+
+    - name: "[ALL] Enable NTP sync for Chrony..."
+      command: timedatectl set-ntp 1
+      when: inventory_hostname in groups['AllNodes']
